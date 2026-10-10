@@ -23,4 +23,3 @@ jobs:
           git add last_seen.txt
           git commit -m "update" || exit 0
           git push
-# force restart
