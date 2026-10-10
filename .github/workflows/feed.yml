@@ -5,12 +5,16 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
+  actions: write
+concurrency:
+  group: chapter-feed
+  cancel-in-progress: false
 jobs:
   run:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - run: pip install requests
@@ -22,4 +26,12 @@ jobs:
           git config user.email "bot@users.noreply.github.com"
           git add last_seen.txt
           git commit -m "update" || exit 0
+          git pull --rebase
           git push
+      - name: Keep schedule alive
+        run: |
+          curl -s -X PUT "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/feed.yml/enable" \
+            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+            -H "Accept: application/vnd.github+json"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
