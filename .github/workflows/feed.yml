@@ -1,11 +1,8 @@
 name: chapter-feed
 on:
-  schedule:
-    - cron: "8,23,38,53 * * * *"
   workflow_dispatch:
 permissions:
   contents: write
-  actions: write
 concurrency:
   group: chapter-feed
   cancel-in-progress: false
@@ -28,10 +25,3 @@ jobs:
           git commit -m "update" || exit 0
           git pull --rebase
           git push
-      - name: Keep schedule alive
-        run: |
-          curl -s -X PUT "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/workflows/feed.yml/enable" \
-            -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-            -H "Accept: application/vnd.github+json"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
